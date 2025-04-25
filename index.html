@@ -1,0 +1,410 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Padel One Courts - About Us</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for animations and enhanced hover effects */
+        .hover\:grow {
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+        .hover\:grow:hover {
+            transform: scale(1.05);
+        }
+        .transition-colors {
+            transition-property: color, background-color, border-color, fill, stroke;
+            transition-duration: 0.3s;
+            transition-timing-function: ease;
+        }
+        .shadow-custom {
+             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .shadow-hover {
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Transparent Header */
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Accordion for FAQs */
+        .faq-item {
+            background-color: white;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .faq-item:hover {
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .faq-question {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-answer {
+            display: none;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .faq-answer.active {
+            display: block;
+        }
+        .faq-toggle {
+            transition: transform 0.3s ease;
+        }
+        .faq-toggle.active {
+            transform: rotate(180deg);
+        }
+
+        /* Hamburger Menu Styles */
+        .menu-toggle {
+            display: none;
+        }
+
+        @media (max-width: 767px) {
+            .menu-toggle {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                background: rgba(255, 255, 255, 0.9);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-links a {
+                padding: 1rem;
+                text-align: center;
+                border-bottom: 1px solid #e5e7eb;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-inter">
+    <header class="shadow-md py-4 fixed top-0 w-full z-10">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <div class="logo">
+                <h1 class="text-2xl font-bold text-blue-800">Padel One Courts</h1>
+            </div>
+            <button class="menu-toggle md:hidden text-gray-700 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <nav class="nav-links md:flex md:space-x-6">
+                <a href="#home" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                <a href="#about-us" class="text-gray-700 hover:text-blue-600 transition-colors">About</a>
+                <a href="#contact" class="text-gray-700 hover:text-blue-600 transition-colors">Contact</a>
+            </nav>
+            <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition-colors shadow-md hover:shadow-lg">Request a Quote</a>
+        </div>
+    </header>
+
+    <section id="home" class="bg-gradient-to-b from-blue-200 to-white py-20 pt-32">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-800 mb-4">Experience the Future of Padel Courts</h1>
+            <p class="text-xl sm:text-2xl text-gray-700 mb-8">Premium Solutions Designed for You</p>
+            <p class="text-md sm:text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+                Padel One Courts specializes in crafting premium padel courts with American-made materials, delivering durability and design across the United States from our Florida headquarters.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="#contact" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-full transition-colors shadow-md hover:shadow-lg">Get Started Today</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about-us" class="py-20">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-3xl sm:text-4xl font-semibold text-blue-800 mb-6">Who We Are</h2>
+            <p class="text-md sm:text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+                Based in Florida, Padel One Courts is dedicated to manufacturing, assembling, and installing high-quality padel courts nationwide. Our mission is to contribute to a healthier lifestyle through the sport of padel, offering fast, customizable services with a focus on excellence.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Quality & Durability" class="h-12 w-12 mb-4 mx-auto text-blue-600" style="filter: invert(28%) sepia(99%) saturate(1445%) hue-rotate(192deg) brightness(96%) contrast(96%);" />
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Quality & Durability</h3>
+                    <p class="text-md text-gray-600">Using American-made materials for long-lasting courts.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <img src="https://cdn-icons-png.flaticon.com/512/681/681494.png" alt="Customer-Focused Service" class="h-12 w-12 mb-4 mx-auto text-blue-600" style="filter: invert(28%) sepia(99%) saturate(1445%) hue-rotate(192deg) brightness(96%) contrast(96%);" />
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Customer-Focused Service</h3>
+                    <p class="text-md text-gray-600">Fast, customizable solutions tailored to your needs.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <img src="https://cdn-icons-png.flaticon.com/512/684/684912.png" alt="Health & Community" class="h-12 w-12 mb-4 mx-auto text-blue-600" style="filter: invert(28%) sepia(99%) saturate(1445%) hue-rotate(192deg) brightness(96%) contrast(96%);" />
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Health & Community</h3>
+                    <p class="text-md text-gray-600">Promoting a healthier lifestyle through padel.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="bg-gray-100 py-20">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-3xl sm:text-4xl font-semibold text-blue-800 mb-6">Our Services</h2>
+            <p class="text-md sm:text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+                Padel One Courts offers comprehensive solutions for padel court design, manufacturing, and installation, catering to a variety of spaces across the United States.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-4">Court Design</h3>
+                    <p class="text-md text-gray-600 mb-6">Custom designs tailored to your space and needs.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-4">Manufacturing</h3>
+                    <p class="text-md text-gray-600 mb-6">High-quality courts using American-made materials.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-4">Installation</h3>
+                    <p class="text-md text-gray-600 mb-6">Expert installation for residential and commercial spaces.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-4">Customization</h3>
+                    <p class="text-md text-gray-600 mb-6">Personalized solutions for any location or project.</p>
+                </div>
+            </div>
+            <div class="mt-12">
+                <a href="#services" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition-colors shadow-md hover:shadow-lg">Explore Our Solutions</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="why-choose-us" class="py-20">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-3xl sm:text-4xl font-semibold text-blue-800 mb-6">Why Choose Us</h2>
+            <p class="text-md sm:text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+                At Padel One Courts, we’re committed to delivering the best padel court solutions with a focus on quality, expertise, and customer satisfaction.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Quality Materials</h3>
+                    <p class="text-md text-gray-600">We use American-made materials to ensure durability and performance.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Expert Installation</h3>
+                    <p class="text-md text-gray-600">Our experienced team ensures a seamless installation process.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6 transition-shadow hover:shadow-hover hover:grow">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Custom Solutions</h3>
+                    <p class="text-md text-gray-600">Tailored designs to fit your unique space and requirements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faqs" class="bg-gray-100 py-20">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-3xl sm:text-4xl font-semibold text-blue-800 mb-6">Frequently Asked Questions</h2>
+            <div class="max-w-2xl mx-auto">
+                <div class="faq-item shadow-custom">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-gray-700">How long does it take to install a padel court?</h3>
+                        <span class="faq-toggle">
+                            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-md text-gray-600">Installation typically takes 2-4 weeks, depending on the project scope and location. We’ll provide a detailed timeline during the consultation.</p>
+                    </div>
+                </div>
+                <div class="faq-item shadow-custom">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-gray-700">Can you customize the court design?</h3>
+                        <span class="faq-toggle">
+                            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-md text-gray-600">Yes, we offer fully customizable designs to match your space, branding, and preferences.</p>
+                    </div>
+                </div>
+                <div class="faq-item shadow-custom">
+                    <div class="faq-question">
+                        <h3 class="text-lg font-semibold text-gray-700">What is the lifespan of a Padel One court?</h3>
+                        <span class="faq-toggle">
+                            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="text-md text-gray-600">With proper maintenance, our courts are built to last over 15 years, thanks to the high-quality American-made materials we use.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="bg-gray-100 py-20">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-3xl sm:text-4xl font-semibold text-blue-800 mb-6">What Our Clients Say</h2>
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-lg shadow-custom py-8 px-6">
+                    <p class="text-md sm:text-lg italic text-gray-600 mb-4">"Padel One Courts transformed our community center with a top-notch padel court. The quality and service were exceptional!"</p>
+                    <p class="text-sm font-semibold text-blue-700">— Sarah M., Community Manager</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="bg-blue-100 py-20">
+        <div class="container mx-auto text-center px-4">
+            <h2 class="text-3xl sm:text-4xl font-semibold text-blue-800 mb-6">Contact Us</h2>
+            <form class="max-w-md mx-auto bg-white rounded-lg shadow-custom p-6">
+                <div class="mb-6">
+                    <label for="name" class="block text-left text-gray-700 mb-2">Name</label>
+                    <input type="text" id="name" placeholder="Your Name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-300 transition-colors" />
+                </div>
+                <div class="mb-6">
+                    <label for="email" class="block text-left text-gray-700 mb-2">Email</label>
+                    <input type="email" id="email" placeholder="Your Email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-300 transition-colors" />
+                </div>
+                <div class="mb-6">
+                    <label for="message" class="block text-left text-gray-700 mb-2">Message</label>
+                    <textarea id="message" placeholder="Your Message" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-300 transition-colors h-32"></textarea>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition-colors shadow-md hover:shadow-lg">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center md:items-start">
+            <div class="text-center md:text-left mb-4 md:mb-0">
+                <h4 class="font-semibold text-lg mb-2">Subscribe to Newsletter</h4>
+                <form class="max-w-sm mx-auto md:mx-0">
+                    <div class="flex">
+                        <input type="email" placeholder="Your Email" class="w-full px-4 py-2 rounded-l-full border border-gray-300 focus:ring focus:ring-blue-200 focus:border-blue-300 transition-colors" />
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-full transition-colors">Subscribe</button>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">Get updates and exclusive offers</p>
+                </form>
+                <div class="flex justify-center md:justify-start space-x-4 mt-4">
+                    <a href="#" class="hover:text-blue-300 transition-colors hover:grow">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968764.png" alt="Facebook" class="h-6 w-6" />
+                    </a>
+                    <a href="#" class="hover:text-blue-300 transition-colors hover:grow">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="h-6 w-6" />
+                    </a>
+                    <a href="#" class="hover:text-blue-300 transition-colors hover:grow">
+                        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" class="h-6 w-6" />
+                    </a>
+                    <a href="#" class="hover:text-blue-300 transition-colors hover:grow">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" alt="Twitter" class="h-6 w-6" />
+                    </a>
+                </div>
+            </div>
+            <div class="text-center md:text-right">
+                <p class="text-gray-300 font-semibold">Padel One Courts</p>
+                <p class="text-gray-300">1615 South Combee Road, Lakeland, Florida 33801</p>
+                <p class="text-gray-300">Phone: <a href="tel:+1234567890" class="hover:text-blue-300">123-456-7890</a></p>
+                <p class="text-gray-300">Email: <a href="mailto:hello@padelonecourts.com" class="hover:text-blue-300">hello@padelonecourts.com</a></p>
+            </div>
+        </div>
+        <p class="mt-4 text-gray-400 text-sm text-center">© 2025 Padel One Courts. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Fade-in animation on scroll
+        const sections = document.querySelectorAll('section');
+        function revealSections() {
+            sections.forEach(section => {
+                const top = section.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (top < windowHeight * 0.8) {
+                    section.classList.add('fade-in');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealSections);
+
+        // Hamburger menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // FAQ accordion toggle
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const toggle = question.querySelector('.faq-toggle');
+                answer.classList.toggle('active');
+                toggle.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
